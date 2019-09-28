@@ -37,8 +37,9 @@ y_pre_predict = clf.predict(X)
 y_post_predict = clf.predict(X_lately)
 
 df["forecast"] = np.nan
-first_date = df.iloc[-1].name
-last_unix = first_date.timestamp()
+
+last_date = df.iloc[-1].name
+last_unix = last_date.timestamp()
 one_day = 86400
 next_unix = last_unix + one_day
 
@@ -62,11 +63,23 @@ for i in y_post_predict:
     df.loc[next_date] = [np.nan for _ in range(len(df.columns) - 1)] + [i]
 
 
-print(pre_predict_df)
-print(df)
-df['Adj. Close'].plot()
+last_date = df.iloc[0].name
+last_unix = last_date.timestamp()
+one_day = 86400
+next_unix = last_unix + one_day
+
+new_df = pd.DataFrame({"Date" : [], 'Adj. Close' : [], "label" : [], "forecast" : []})
+new_df = new_df.set_index("Date")
+for i in range(0, len(df)):
+    date = df.iloc[i].name.timestamp()
+    date = datetime.datetime.fromtimestamp(date)
+
+    new_df.loc[date] = df.iloc[i]
+
+new_df['Adj. Close'].plot()
 pre_predict_df["forecast"].plot(label="pre_forecast")
-df['forecast'].plot()
+new_df['forecast'].plot()
+
 plt.legend(loc=4)
 plt.xlabel('Date')
 plt.ylabel('Price')
